@@ -166,7 +166,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .check input{width:22px;height:22px;accent-color:var(--accent)}
 .meter{position:relative;height:14px;border-radius:999px;background:var(--panel-line);overflow:hidden;margin-top:6px}
 .meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--grass2)}
-.meter b{position:absolute;left:50%;top:-2px;bottom:-2px;width:3px;background:var(--accent)}
+.meter i.over{background:var(--dot-on)}
+.meter b{position:absolute;left:50%;top:-2px;bottom:-2px;width:3px;margin-left:-1px;background:var(--accent)}
+#vuBar{position:absolute;z-index:32;left:50%;bottom:22px;transform:translateX(-50%);width:min(46vw,240px);height:12px;margin:0;opacity:.7;pointer-events:none;background:rgba(0,0,0,.18)}
+#vuBar i{background:rgba(255,255,255,.85)}
+#vuBar i.over{background:var(--dot-on)}
 .hint{font-size:14px;color:var(--muted);margin:3px 0 0;line-height:1.3}
 @media (prefers-reduced-motion: reduce){#pig.walk .bob,#pig.home .bob,#party h2{animation:none}}
 </style>
@@ -290,6 +294,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 <button id="gear" class="pbtn" aria-label="Nastavení (podržet)">⚙️</button>
 <button id="paw" class="pbtn hidden" aria-label="Ruční posun">🐾</button>
 <div id="toast" class="hidden" role="status"></div>
+<div id="vuBar" class="meter hidden" aria-hidden="true"><i></i><b></b></div>
 
 <!-- start gate -->
 <div id="gate" class="overlay">
@@ -319,11 +324,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <p class="hint" id="modeHint">„Prasátko/chro“, „kuk“, „balón/gól/kop“. Rozpoznání slov je zkušební a u malých dětí nemusí fungovat.</p>
     </div>
     <div class="row">
-      <label for="sens">Citlivost mikrofonu <span id="sensV"></span></label>
-      <input id="sens" type="range" min="1" max="10" step="1">
-      <div class="meter"><i id="meterFill"></i><b></b></div>
-      <p class="hint">Když zelený pruh přeskočí růžovou čárku, hra hlas slyší. Reaguje-li na šum, snižte citlivost.</p>
+      <label for="lvl">Hranice hlasu <span id="lvlV"></span></label>
+      <input id="lvl" type="range" min="0" max="100" step="1">
+      <div class="meter"><i id="meterFill"></i><b id="meterMark"></b></div>
+      <p class="hint">Pruh ukazuje, jak hlasitě je slyšet. Když přeskočí růžovou čárku, hra hlas slyší. Posuvníkem čárku posunete: doleva = stačí tichý hlas, doprava = je potřeba mluvit hlasitěji. Dejte ji kousek nad pruh, když je v místnosti ticho. Pod stálý šum (lednička, větrák) čárka sama nesjede, aby hra nereagovala na hluk.</p>
     </div>
+    <label class="check"><input id="vu" type="checkbox"> Ukazatel hlasitosti ve hře</label>
     <div class="row"><label for="pigSec">Prasátko: sekund mluvení do chlívku <span id="pigSecV"></span></label><input id="pigSec" type="range" min="2" max="12" step="1"></div>
     <div class="row"><label for="kukN">Kuk: zvířátek do oslavy <span id="kukNV"></span></label><input id="kukN" type="range" min="3" max="9" step="1"></div>
     <div class="row"><label for="ballN">Gól: kopů do branky <span id="ballNV"></span></label><input id="ballN" type="range" min="1" max="8" step="1"></div>
@@ -339,7 +345,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 <script>
 (function(){
 const $=s=>document.querySelector(s);
-const DEF={mode:'any',sens:6,pigSec:4,kukN:5,ballN:4,sfx:true,voice:true,manual:false};
+const DEF={mode:'any',lvl:45,pigSec:4,kukN:5,ballN:4,sfx:true,voice:true,manual:false,vu:true};
 const S=Object.assign({},DEF);
 try{Object.assign(S,JSON.parse(localStorage.getItem('prasatko-hry')||'{}'));}catch(e){}
 const save=()=>{try{localStorage.setItem('prasatko-hry',JSON.stringify(S));}catch(e){}};
@@ -357,11 +363,12 @@ const WORDS=[
 ];
 
 /* ================= AUDIO ================= */
-const A={ctx:null,an:null,buf:null,micOk:false,base:0.01,ignore:0,speaking:false,lastLoud:0,loudSince:0,lastTrig:0,rms:0,thr:1};
+const A={ctx:null,an:null,buf:null,micOk:false,base:0.001,ignore:0,speaking:false,lastLoud:0,loudSince:0,lastTrig:0,rms:0,thr:1,
+  stream:null,src:null,started:false,restarting:false,silentSince:0,lastRestart:0};
 let partyOn=false,settingsOn=false,manualHold=false,game=null,gameName='menu';
 function ctx(){
   if(!A.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)A.ctx=new AC();}
-  if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume();
+  if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().catch(()=>{});
   return A.ctx;
 }
 const mute=ms=>{A.ignore=Math.max(A.ignore,performance.now()+ms);};
@@ -397,22 +404,53 @@ function say(text){
     mute(3000);u.onend=()=>{A.ignore=performance.now()+250;};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
 }
 async function startMic(){
+  A.started=true;A.restarting=true;A.lastRestart=performance.now();
   try{
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
     const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:true}});
-    const c=ctx();const src=c.createMediaStreamSource(st);
-    A.an=c.createAnalyser();A.an.fftSize=1024;A.buf=new Float32Array(A.an.fftSize);src.connect(A.an);A.micOk=true;
+    if(A.src){try{A.src.disconnect();}catch(e){}}
+    if(A.stream)A.stream.getTracks().forEach(t=>t.stop());
+    const c=ctx();A.stream=st;A.src=c.createMediaStreamSource(st);
+    if(!A.an){A.an=c.createAnalyser();A.an.fftSize=1024;A.buf=new Float32Array(A.an.fftSize);}
+    A.src.connect(A.an);A.micOk=true;A.silentSince=0;
   }catch(e){
+    A.micOk=false;
     toast('Mikrofon nejde zapnout. Hry můžete ovládat tlačítkem 🐾 vpravo dole.');
   }
+  A.restarting=false;
   updatePaw();startWords();
 }
+/* po zhasnutí obrazovky nebo přepnutí aplikace mikrofon občas „usne“: probudit ho */
+function micAsleep(){
+  const t=A.stream&&A.stream.getAudioTracks()[0];
+  return !t||t.readyState==='ended'||t.muted||(A.silentSince&&performance.now()-A.silentSince>2000);
+}
+function checkMic(){
+  if(!A.started||A.restarting||document.visibilityState!=='visible')return;
+  ctx();
+  if(A.micOk&&micAsleep()&&performance.now()-A.lastRestart>4000)startMic();
+}
+let wake=null;
+async function keepAwake(){
+  try{if('wakeLock' in navigator&&!wake&&document.visibilityState==='visible'){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null;});}}catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A.started){keepAwake();checkMic();}});
+document.addEventListener('pointerdown',()=>{if(A.started){keepAwake();checkMic();}},true);
+const lvlDb=v=>-80+v*0.6;           // posuvník 0–100 = -80 až -20 dB
+const dbPos=db=>Math.max(0,Math.min(100,(db+80)/0.6));
+const lvlText=v=>v<25?'šepot':v<50?'tichý hlas':v<75?'normální hlas':'hlasitě';
+function drawMeter(fill,mark,rms,thr){
+  fill.style.width=dbPos(20*Math.log10(rms+1e-9))+'%';
+  fill.classList.toggle('over',rms>thr);
+  mark.style.left=dbPos(20*Math.log10(thr))+'%';
+}
 function audioFrame(now){
-  if(!A.micOk){A.speaking=false;return;}
+  if(!A.micOk){A.speaking=false;$('#vuBar').classList.add('hidden');return;}
   A.an.getFloatTimeDomainData(A.buf);
   let s=0;for(let i=0;i<A.buf.length;i++)s+=A.buf[i]*A.buf[i];
   const rms=Math.sqrt(s/A.buf.length);
-  const thr=Math.max(A.base*(4-S.sens*0.28),0.0015+(10-S.sens)*0.0025);
+  if(rms===0){if(!A.silentSince)A.silentSince=now;else if(now-A.silentSince>2000)checkMic();}else A.silentSince=0;
+  const thr=Math.max(Math.pow(10,lvlDb(S.lvl)/20),A.base*1.4);
   A.rms=rms;A.thr=thr;
   const muted=now<A.ignore||partyOn||settingsOn;
   if(rms<thr)A.base=A.base*0.98+rms*0.02;
@@ -421,7 +459,10 @@ function audioFrame(now){
     if(S.mode==='any'&&now-A.loudSince>110&&now-A.lastTrig>1200){A.lastTrig=now;if(game&&game.trigger)game.trigger('voice');}
   }else A.loudSince=0;
   A.speaking=!muted&&now-A.lastLoud<300;
-  if(settingsOn)$('#meterFill').style.width=Math.min(100,rms/thr*50)+'%';
+  if(settingsOn)drawMeter($('#meterFill'),$('#meterMark'),rms,thr);
+  const vu=$('#vuBar'),showVu=S.vu&&!settingsOn&&!partyOn&&gameName!=='menu'&&gameName!=='words';
+  vu.classList.toggle('hidden',!showVu);
+  if(showVu)drawMeter(vu.firstElementChild,vu.lastElementChild,rms,thr);
 }
 /* word recognition (experimental) */
 let rec=null,recOn=false,lastWord=0;
@@ -655,13 +696,15 @@ paw.addEventListener('pointerdown',e=>{e.preventDefault();ctx();manualHold=true;
 
 /* ================= SETTINGS ================= */
 function syncSettings(){
-  ['sens','pigSec','kukN','ballN'].forEach(k=>{$('#'+k).value=S[k];$('#'+k+'V').textContent=S[k];});
-  ['sfx','voice','manual'].forEach(k=>{$('#'+k).checked=S[k];});
+  ['pigSec','kukN','ballN'].forEach(k=>{$('#'+k).value=S[k];$('#'+k+'V').textContent=S[k];});
+  $('#lvl').value=S.lvl;$('#lvlV').textContent=lvlText(S.lvl);
+  ['sfx','voice','manual','vu'].forEach(k=>{$('#'+k).checked=S[k];});
   document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===S.mode));
 }
 function openSettings(){settingsOn=true;pickVoice();syncSettings();$('#settings').classList.remove('hidden');}
-['sens','pigSec','kukN','ballN'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=+e.target.value;$('#'+k+'V').textContent=S[k];save();}));
-['sfx','voice','manual'].forEach(k=>$('#'+k).addEventListener('change',e=>{S[k]=e.target.checked;save();updatePaw();}));
+['pigSec','kukN','ballN'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=+e.target.value;$('#'+k+'V').textContent=S[k];save();}));
+$('#lvl').addEventListener('input',e=>{S.lvl=+e.target.value;$('#lvlV').textContent=lvlText(S.lvl);save();});
+['sfx','voice','manual','vu'].forEach(k=>$('#'+k).addEventListener('change',e=>{S[k]=e.target.checked;save();updatePaw();}));
 document.querySelectorAll('#modeSeg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.m;save();syncSettings();startWords();}));
 $('#closeSet').addEventListener('click',()=>{
   $('#settings').classList.add('hidden');settingsOn=false;mute(500);
@@ -672,7 +715,7 @@ $('#closeSet').addEventListener('click',()=>{
 $('#gateBtn').addEventListener('click',()=>{
   ctx();
   if('speechSynthesis' in window&&!window.AndroidTTS){try{speechSynthesis.speak(new SpeechSynthesisUtterance(''));}catch(e){}}
-  $('#gate').classList.add('hidden');go('menu');startMic();
+  $('#gate').classList.add('hidden');go('menu');keepAwake();startMic();
 });
 window.addEventListener('resize',()=>{if(game===Pig)Pig.layout();if(game===Ball){Ball.layout();Ball.x=Math.min(Math.max(Ball.x,Ball.left+Ball.R),Ball.right-Ball.R);Ball.place();}});
 
