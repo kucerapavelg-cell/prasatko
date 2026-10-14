@@ -399,7 +399,7 @@ function say(text){
 async function startMic(){
   try{
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
-    const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false}});
+    const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:true}});
     const c=ctx();const src=c.createMediaStreamSource(st);
     A.an=c.createAnalyser();A.an.fftSize=1024;A.buf=new Float32Array(A.an.fftSize);src.connect(A.an);A.micOk=true;
   }catch(e){
@@ -412,7 +412,7 @@ function audioFrame(now){
   A.an.getFloatTimeDomainData(A.buf);
   let s=0;for(let i=0;i<A.buf.length;i++)s+=A.buf[i]*A.buf[i];
   const rms=Math.sqrt(s/A.buf.length);
-  const thr=Math.max(A.base*(5.5-S.sens*0.4),0.006+(10-S.sens)*0.004);
+  const thr=Math.max(A.base*(4-S.sens*0.28),0.0015+(10-S.sens)*0.0025);
   A.rms=rms;A.thr=thr;
   const muted=now<A.ignore||partyOn||settingsOn;
   if(rms<thr)A.base=A.base*0.98+rms*0.02;
