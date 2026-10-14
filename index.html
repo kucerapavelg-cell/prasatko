@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prasátko a kamarádi – hry, ve kterých hlas něco dokáže</title>
+<meta name="description" content="Bezplatné české hry na podporu řeči pro děti, které s mluvením začínají, třeba pro děti s autismem. Dítě promluví a něco se stane.">
+<meta name="theme-color" content="#ff6f9c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:title" content="Prasátko a kamarádi">
+<meta property="og:description" content="České hry, ve kterých dětský hlas něco dokáže. Zdarma, bez reklam.">
+<meta property="og:image" content="icons/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff6e6; --bg2:#ffe9c7; --card:#fffdf8; --line:#efe4cf; --text:#2d2a32; --muted:#5f5b68;
+  --pink:#ff6f9c; --pink-soft:#ffd6e3; --green:#74bd48; --green-soft:#dcf2c8; --yellow:#ffd23f; --on-pink:#fff;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1f1c24; --bg2:#2b2630; --card:#2a2733; --line:#3d3947; --text:#f4f1f7; --muted:#c3bdcc;
+  --pink:#ff7fa7; --pink-soft:#4a2a38; --green:#8fd16a; --green-soft:#2c3b25; --yellow:#ffcf3a; --on-pink:#2a0f19; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#1f1c24; --bg2:#2b2630; --card:#2a2733; --line:#3d3947; --text:#f4f1f7; --muted:#c3bdcc;
+  --pink:#ff7fa7; --pink-soft:#4a2a38; --green:#8fd16a; --green-soft:#2c3b25; --yellow:#ffcf3a; --on-pink:#2a0f19; color-scheme:dark;}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.6}
+h1,h2,h3{font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;line-height:1.1;margin:0 0 .4em}
+a{color:var(--pink)}
+.emo{font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;line-height:1}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+section{padding:52px 0}
+.btn{display:inline-block;text-decoration:none;font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;font-size:22px;padding:12px 30px;border-radius:999px;background:var(--pink);color:var(--on-pink);box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:2px solid var(--line);font-size:18px;padding:10px 22px}
+.btn:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+
+/* hero */
+.hero{background:radial-gradient(circle at 85% 0%,var(--pink-soft),transparent 55%),radial-gradient(circle at 0% 100%,var(--green-soft),transparent 55%),var(--bg2);padding:56px 0 64px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}
+.hero h1{font-size:clamp(40px,9vw,64px);font-weight:800}
+.hero h1 span{color:var(--pink)}
+.lead{font-size:clamp(19px,4.6vw,22px);margin:0 0 22px;color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px;padding:0;list-style:none}
+.chips li{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:3px 14px;font-weight:700;font-size:15px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hero-art{position:relative;aspect-ratio:1;max-width:320px;justify-self:center;width:100%}
+.hero-art img{width:100%;height:100%;border-radius:40%;box-shadow:0 10px 0 var(--line);animation:float 3.2s ease-in-out infinite}
+.hero-art .bubble{position:absolute;top:2%;right:-4%;background:var(--card);border:3px solid var(--line);border-radius:22px 22px 22px 4px;padding:6px 16px;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:26px;transform:rotate(6deg)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (max-width:640px){.hero .wrap{grid-template-columns:1fr}.hero-art{max-width:200px;order:-1}}
+
+/* story */
+.story{font-size:19px}
+.story blockquote{margin:0;padding:22px 24px;background:var(--card);border-radius:24px;border:2px solid var(--line);position:relative}
+.story blockquote::before{content:"„";position:absolute;top:-34px;left:16px;font-family:"Baloo 2",serif;font-size:90px;color:var(--pink);line-height:1}
+.story p{margin:0 0 12px}.story p:last-child{margin:0}
+
+/* idea */
+.idea{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.idea div{background:var(--card);border-radius:22px;padding:18px;border:2px solid var(--line)}
+.idea .emo{font-size:38px;display:block;margin-bottom:8px}
+.idea b{display:block;font-family:"Baloo 2",sans-serif;font-size:21px;line-height:1.2;margin-bottom:4px}
+@media (max-width:640px){.idea{grid-template-columns:1fr}}
+
+/* games */
+.games{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.game{background:var(--card);border-radius:26px;padding:20px;border:2px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.game .emo{font-size:52px;background:var(--bg2);border-radius:20px;width:76px;height:76px;display:flex;align-items:center;justify-content:center}
+.game h3{font-size:24px;margin:0}
+.game .goal{display:inline-block;font-size:13px;font-weight:700;background:var(--green-soft);border-radius:999px;padding:1px 10px;margin:2px 0 6px}
+.game p{margin:0;font-size:16px;color:var(--muted)}
+@media (max-width:640px){.games{grid-template-columns:1fr}}
+
+/* tips */
+.tips{counter-reset:t;display:grid;gap:12px;margin-top:20px}
+.tip{background:var(--card);border-radius:20px;padding:16px 18px 16px 64px;border:2px solid var(--line);position:relative}
+.tip::before{counter-increment:t;content:counter(t);position:absolute;left:16px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--yellow);color:#2d2a32;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center}
+.tip b{font-family:"Baloo 2",sans-serif;font-size:20px;display:block;line-height:1.2;margin-bottom:2px}
+
+/* install / panels */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.panel{background:var(--card);border-radius:24px;padding:20px;border:2px solid var(--line)}
+.panel h3{font-size:22px}
+.panel ol,.panel ul{margin:0;padding-left:22px}
+.panel li{margin-bottom:4px}
+@media (max-width:640px){.cols{grid-template-columns:1fr}}
+.alt{background:var(--bg2)}
+.note{font-size:15px;color:var(--muted)}
+
+/* donate */
+.donate{text-align:center;background:radial-gradient(circle at 50% 0%,var(--pink-soft),transparent 70%),var(--bg2)}
+.donate p{max-width:560px;margin:0 auto 18px}
+#qrBox img{width:220px;max-width:70%;border-radius:16px;background:#fff;padding:10px;margin-top:16px}
+
+footer{padding:30px 0 40px;text-align:center;font-size:14px;color:var(--muted)}
+.final{text-align:center}
+.final h2{font-size:clamp(30px,7vw,42px)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Prasátko <span>a kamarádi</span></h1>
+      <p class="lead">České hry pro děti, které s řečí teprve začínají. Dítě promluví a něco se stane: prasátko vyrazí domů, zpoza keře vykoukne zvířátko, míč letí do branky.</p>
+      <ul class="chips"><li>zdarma</li><li>bez reklam</li><li>nic se nenahrává</li><li>funguje i offline</li></ul>
+      <div class="cta">
+        <a class="btn" href="app.html">▶ Spustit hry</a>
+        <a class="btn ghost" href="#instalace">Nainstalovat do mobilu</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <img src="icons/icon-512.png" alt="Usměvavé růžové prasátko">
+      <div class="bubble">chro!</div>
+    </div>
+  </div>
+</header>
+
+<section class="story">
+  <div class="wrap">
+    <h2 style="font-size:34px">Proč to vzniklo</h2>
+    <blockquote>
+      <p>Pro děti, které s mluvením teprve začínají, je těžké pochopit, že slova něco dokážou. Českých aplikací, které by je k mluvení lákaly, je málo a většina chce, aby dítě slova opakovalo.</p>
+      <p>Prasátko a kamarádi to dělá jinak: <b>dítě promluví a svět kolem odpoví</b>.</p>
+      <p>Není to terapie ani zázračný lék. Je to malá radost, kterou si můžete pár minut denně dopřát spolu.</p>
+    </blockquote>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2 style="font-size:34px">Jak to funguje</h2>
+    <p>Mnoho dětí s autismem nebo opožděnou řečí ještě nemá zkušenost, že mluvení k něčemu je. Hry jim tuhle souvislost ukazují co nejjednodušeji.</p>
+    <div class="idea">
+      <div><span class="emo">🗣️</span><b>Dítě vydá hlas</b>Slovo, zvuk, „chro“, cokoli. Každý pokus se počítá.</div>
+      <div><span class="emo">✨</span><b>Hned se něco stane</b>Okamžitá a zábavná odezva, bez čekání a bez hodnocení.</div>
+      <div><span class="emo">💡</span><b>„Můj hlas to dokázal!“</b>Opakovaný úspěch buduje chuť komunikovat dál.</div>
+    </div>
+    <p class="note" style="margin-top:16px">Na rodičovské ploše lze přepnout, jestli hry reagují na jakýkoli hlas, nebo jen na konkrétní slovo („kuk“, „balón“…). Začněte jakýmkoli hlasem, úspěch je důležitější než přesnost.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 style="font-size:34px">Čtyři hry</h2>
+    <div class="games">
+      <div class="game"><span class="emo">🐷</span><div><h3>Prasátko domů</h3><span class="goal">delší mluvení</span><p>Dokud dítě mluví, prasátko jde po cestičce ke chlívku. Když ztichne, zastaví se. V cíli čeká oslava.</p></div></div>
+      <div class="game"><span class="emo">🌳</span><div><h3>Kuk!</h3><span class="goal">jedno slovo, napodobování</span><p>Dítě řekne „kuk“ a zpoza keře vykoukne pokaždé jiné zvířátko. Řekne své jméno i zvuk: „Koník! Íhahá!“</p></div></div>
+      <div class="game"><span class="emo">🐴</span><div><h3>Zvířátka</h3><span class="goal">slovník</span><p>Velké karty se zvířátky. Ťuknutí přehraje jméno a zvuk. Dobré na společné pojmenovávání a hledání.</p></div></div>
+      <div class="game"><span class="emo">⚽</span><div><h3>Gól!</h3><span class="goal">opakované slovo</span><p>Každé slovo kopne do míče, ten se odráží od kraje hřiště, a po pár kopech: Góól! Počet kopů nastavíte.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2 style="font-size:34px">Jak hrát, aby to pomáhalo</h2>
+    <p>Aplikace funguje nejlépe jako hračka pro dva, ne jako hlídání. Několik osvědčených zásad:</p>
+    <div class="tips">
+      <div class="tip"><b>Hrajte spolu</b>Seďte vedle dítěte a radujte se s ním. Vaše nadšení je ta největší odměna.</div>
+      <div class="tip"><b>Komentujte o krok víc</b>Když řekne „prasátko“, vy řeknete „prasátko běží!“. Nabízíte o slovo delší větu, ale opakování nevyžadujete.</div>
+      <div class="tip"><b>Čekejte</b>Po výzvě vydržte pár vteřin v tichu. Některé děti potřebují víc času, než promluví.</div>
+      <div class="tip"><b>Každý pokus je úspěch</b>Zvuk, šepot, napůl řečené slovo, to všechno se počítá. Neopravujte. Když mikrofon tichý pokus nezachytí, pomozte tlačítkem 🐾.</div>
+      <div class="tip"><b>Krátce a často</b>Pár minut denně stačí. Končete, dokud dítě baví, ne až když ho to přestane bavit.</div>
+      <div class="tip"><b>Přeneste to do života</b>Kuk hrajte i za gaučem, prasátko hledejte v knížce, s míčem na zahradě říkejte „kop!“. Aplikace je jen začátek.</div>
+    </div>
+    <p class="note" style="margin-top:18px">Aplikace nenahrazuje logopedii ani odbornou péči. Je to doplněk pro chvíle doma. S rozvojem řeči vám nejlépe poradí klinický logoped nebo speciálně pedagogické centrum.</p>
+  </div>
+</section>
+
+<section id="instalace">
+  <div class="wrap">
+    <h2 style="font-size:34px">Ovládání a instalace</h2>
+    <div class="cols">
+      <div class="panel">
+        <h3>📱 Nainstalovat na plochu</h3>
+        <p style="margin:0 0 6px"><b>Android (Chrome):</b></p>
+        <ol><li>Otevřete tuto stránku v Chrome.</li><li>Ťukněte na ⋮ vpravo nahoře.</li><li>Zvolte „Nainstalovat aplikaci“ nebo „Přidat na plochu“.</li></ol>
+        <p style="margin:10px 0 6px"><b>iPhone / iPad (Safari):</b></p>
+        <ol><li>Otevřete stránku v Safari.</li><li>Ťukněte na tlačítko sdílení (čtvereček se šipkou).</li><li>Zvolte „Přidat na plochu“.</li></ol>
+        <p class="note" style="margin:10px 0 0">Při prvním spuštění povolte mikrofon.</p>
+      </div>
+      <div class="panel">
+        <h3>👪 Pro rodiče</h3>
+        <ul>
+          <li>Ve hře jsou jen dvě nenápadná tlačítka a fungují <b>jen po podržení prstu</b>, aby je dítě nespustilo omylem.</li>
+          <li><b>🏠 podržet</b>: zpět do menu.</li>
+          <li><b>⚙️ podržet</b>: nastavení (citlivost mikrofonu, hlas nebo slovo, počet kopů a zvířátek, délka cesty).</li>
+          <li><b>🐾</b>: ruční posun, když mikrofon nefunguje (zapíná se v nastavení).</li>
+          <li>Pokud hra reaguje i na šum, snižte citlivost mikrofonu.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>🔒 Soukromí</h3>
+      <p style="margin:0">V režimu „jakýkoli hlas“ aplikace jen měří, jak hlasitý je zvuk, a to přímo v telefonu. Nic se nenahrává ani neodesílá. Režim „konkrétní slovo“ používá rozpoznávání řeči, které je součástí prohlížeče nebo telefonu. To může zvuk zpracovávat na serverech výrobce (např. Google nebo Apple). Aplikace nemá reklamy, účty ani sledování a nastavení se ukládá jen ve vašem zařízení.</p>
+    </div>
+  </div>
+</section>
+
+<section class="donate" id="podpora">
+  <div class="wrap">
+    <div class="emo" style="font-size:56px;margin-bottom:8px">💖</div>
+    <h2 style="font-size:34px">Podpořte Prasátko</h2>
+    <p>Aplikace je a zůstane zdarma a bez reklam. Pokud vašemu dítěti pomohla a chcete přispět na další hry, zvířátka a nahrávky zvuků, budeme moc rádi za jakýkoli dar.</p>
+    <a id="donateBtn" class="btn" href="#" data-todo="DOPLNIT-ODKAZ-NA-DARY">Podpořit projekt</a>
+    <div id="qrBox" hidden></div>
+    <p id="donateSoon" class="note" hidden>Možnost podpory brzy přidáme. Zatím nejvíc pomůže, když o aplikaci řeknete dalším rodičům.</p>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Zkusíte to spolu?</h2>
+    <p style="margin:0 0 20px">Stačí pár minut, dobrá nálada a jedno „kuk“.</p>
+    <a class="btn" href="app.html">▶ Spustit hry</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Prasátko a kamarádi · vytvořeno s láskou pro všechny, kdo hledají svůj hlas 🐷</div>
+</footer>
+
+<script>
+(function(){
+  var b=document.getElementById('donateBtn');
+  if(!b||b.getAttribute('href')==='#'){ if(b)b.hidden=true; document.getElementById('donateSoon').hidden=false; }
+  if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+})();
+</script>
+</body>
+</html>
