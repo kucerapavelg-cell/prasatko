@@ -891,7 +891,7 @@ const Ham={
     const m=svgPt(this.svg,100,122,this.el);puff(this.el,m.x,m.y,['🍫','✨'],4,60);
     const last=this.eaten>=this.N;
     this.label.textContent=last?'Mňam!':'Ham!';restartAnim(this.label,'on');
-    this.later(()=>say(last?'Mňam!':'Ham!'),250);
+    this.later(()=>say(last?'Mňam!':'Hám!'),250);   // „Hám“: hlas jinak „ham“ čte anglicky jako „hem“
     clearTimeout(this.chewT);this.chewT=setTimeout(()=>{this.svg.classList.remove('chew');this.label.classList.remove('on');},1300);
     if(last){this.done=true;this.later(()=>celebrate('Mňam! Čokoláda je snědená!',['🍫','😋','⭐']),1600);}
   },
